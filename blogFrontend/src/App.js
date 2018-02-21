@@ -11,6 +11,9 @@ class App extends React.Component {
       blogs: [],
         password: '',
         username: '',
+        title: '',
+        author: '',
+        url: '',
         user: null,
         error: null
     }
@@ -37,33 +40,76 @@ class App extends React.Component {
       }
   }
 
-    login = async (event) => {
-        event.preventDefault()
-
-        try{
-            const user = await loginService.login({
-                username: this.state.username,
-                password: this.state.password
-            })
-
-            window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
-            blogService.setToken(user.token)
-            this.setState({ username: '', password: '', user})
-        } catch(exception) {
-            this.setState({
-                error: 'käyttäjätunnus tai salasana virheellinen',
-            })
-            setTimeout(() => {
-                this.setState({ error: null })
-            }, 5000)
-        }
+  handleBlogChange = (event) => {
+    if (event.target.name === 'title') {
+        this.setState({ title: event.target.value })
+    } else if (event.target.name === 'author') {
+        this.setState({ author: event.target.value })
+    } else if (event.target.name === 'url') {
+        this.setState({ url: event.target.value })
     }
+  }
+
+
+
+  login = async (event) => {
+      event.preventDefault()
+
+      try{
+          const user = await loginService.login({
+              username: this.state.username,
+              password: this.state.password
+          })
+
+          window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
+          blogService.setToken(user.token)
+          this.setState({ username: '', password: '', user})
+      } catch(exception) {
+          this.setState({
+              error: 'käyttäjätunnus tai salasana virheellinen',
+          })
+          setTimeout(() => {
+              this.setState({ error: null })
+          }, 5000)
+      }
+  }
 
     logOut = () => {
         window.localStorage.removeItem('loggedBlogappUser')
         this.setState({user: null})
 
     }
+
+  addBlog = async (event) => {
+      event.preventDefault()
+
+      const newBlog = { 
+          title: this.state.title,
+          author: this.state.author,
+          url: this.state.url
+      }
+
+      try {
+
+          const addedBlog = await blogService.create(newBlog)
+          this.setState(
+              {
+                  blogs: this.state.blogs.concat(addedBlog),
+                  title: '',
+                  author: '',
+                  url: ''
+              })
+          this.setState({error: `a new blog "${newBlog.title}" by ${newBlog.author} added`})
+          setTimeout(() => {
+              this.setState({ error: null })
+          }, 5000)
+      } catch (exception) {
+          this.setState({error: "Tarvittavia kenttiä puuttuu"})
+          setTimeout(() => {
+              this.setState({ error: null })
+          }, 5000)
+      }
+  }
 
 
     render() {
@@ -95,6 +141,40 @@ class App extends React.Component {
             </div>
         )
 
+        const blogForm = () => (
+            <div>
+                <h2>Luo uusi blogi</h2>
+
+                <form onSubmit={this.addBlog}>
+                    <div>
+                        title
+                        <input
+                        name="title"
+                        value={this.state.title}
+                        onChange={this.handleBlogChange}
+                        />
+                    </div>
+                    <div>
+                        author
+                        <input
+                            name="author"
+                            value={this.state.author}
+                            onChange={this.handleBlogChange}
+                        />
+                    </div>
+                    <div>
+                        url
+                        <input
+                            name="url"
+                            value={this.state.url}
+                            onChange={this.handleBlogChange}
+                        />
+                    </div>
+                    <button type="submit">tallenna</button>
+                </form>
+            </div>
+        )
+
         if (this.state.user === null) {
             return (
                 loginForm()
@@ -104,8 +184,13 @@ class App extends React.Component {
       <div>
         <h2>blogs</h2>
           <div>
+              <Notification message={this.state.error} />
               {this.state.user.name} logged in
               <button onClick={this.logOut}>Log out</button>
+          </div>
+
+          <div>
+              {blogForm()}
           </div>
         {this.state.blogs.map(blog => 
           <Blog key={blog._id} blog={blog}/>
