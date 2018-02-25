@@ -24,6 +24,10 @@ blogsRouter.post('/', async (request, response) => {
             return response.status(400).json({ error: 'required fields are missing' })
         }
 
+        if (body.title === '' || body.author === '' || body.url === '') {
+            return response.status(400).json({ error: 'required fields are missing' })
+        }
+
         if (body.likes === undefined) {
             body.likes = 0
         }
