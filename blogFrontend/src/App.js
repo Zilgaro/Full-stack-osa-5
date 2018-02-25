@@ -113,6 +113,8 @@ class App extends React.Component {
   }
 
     render() {
+
+        const sortedBlogs = this.state.blogs.sort((a,b) => {return b.likes - a.likes})
         const loginForm = () => (
             <div>
               <h2>Kirjaudu</h2>
@@ -172,7 +174,7 @@ class App extends React.Component {
 
           {blogForm()}
 
-        {this.state.blogs.map(blog => 
+        {sortedBlogs.map(blog =>
           <Blog key={blog._id} blog={blog}/>
         )}
       </div>
