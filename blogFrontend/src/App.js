@@ -3,6 +3,8 @@ import Blog from './components/Blog'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 
 class App extends React.Component {
   constructor(props) {
@@ -14,6 +16,7 @@ class App extends React.Component {
         title: '',
         author: '',
         url: '',
+        blogFormVisible: true,
         user: null,
         error: null
     }
@@ -83,7 +86,7 @@ class App extends React.Component {
   addBlog = async (event) => {
       event.preventDefault()
 
-      const newBlog = { 
+      const newBlog = {
           title: this.state.title,
           author: this.state.author,
           url: this.state.url
@@ -110,7 +113,6 @@ class App extends React.Component {
           }, 5000)
       }
   }
-
 
     render() {
         const loginForm = () => (
@@ -141,40 +143,21 @@ class App extends React.Component {
             </div>
         )
 
-        const blogForm = () => (
+        const blogForm = () => {
+            return (
             <div>
-                <h2>Luo uusi blogi</h2>
-
-                <form onSubmit={this.addBlog}>
-                    <div>
-                        title
-                        <input
-                        name="title"
-                        value={this.state.title}
-                        onChange={this.handleBlogChange}
-                        />
-                    </div>
-                    <div>
-                        author
-                        <input
-                            name="author"
-                            value={this.state.author}
-                            onChange={this.handleBlogChange}
-                        />
-                    </div>
-                    <div>
-                        url
-                        <input
-                            name="url"
-                            value={this.state.url}
-                            onChange={this.handleBlogChange}
-                        />
-                    </div>
-                    <button type="submit">tallenna</button>
-                </form>
+                <Togglable buttonLabel="uusi blogi">
+                    <BlogForm
+                     handleBlogChange={this.handleBlogChange}
+                     addBlog={this.addBlog}
+                     title={this.state.title}
+                     author={this.state.author}
+                     url={this.state.url}
+                     />
+                </Togglable>
             </div>
         )
-
+        }
         if (this.state.user === null) {
             return (
                 loginForm()
@@ -189,9 +172,8 @@ class App extends React.Component {
               <button onClick={this.logOut}>Log out</button>
           </div>
 
-          <div>
-              {blogForm()}
-          </div>
+          {blogForm()}
+
         {this.state.blogs.map(blog => 
           <Blog key={blog._id} blog={blog}/>
         )}
@@ -199,4 +181,5 @@ class App extends React.Component {
     );
   }
 }
+
 export default App;
