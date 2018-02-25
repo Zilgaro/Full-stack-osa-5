@@ -53,8 +53,6 @@ class App extends React.Component {
     }
   }
 
-
-
   login = async (event) => {
       event.preventDefault()
 
