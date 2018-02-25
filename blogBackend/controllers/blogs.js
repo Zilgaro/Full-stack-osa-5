@@ -61,11 +61,17 @@ blogsRouter.delete('/:id', async (request, response) => {
 
         const blog = await Blog.findById(request.params.id)
 
-        if (decodedToken.id !== blog.user.toString()) {
-            return response.status(401).send({error: 'Unauthorised access'})
+        if (blog.user === undefined) {
+            await Blog.findByIdAndRemove(request.params.id)
+            response.status(204).end()
+        } else {
+
+            if (decodedToken.id !== blog.user.toString()) {
+                return response.status(401).send({error: 'Unauthorised access'})
+            }
+            await Blog.findByIdAndRemove(request.params.id)
+            response.status(204).end()
         }
-        await Blog.findByIdAndRemove(request.params.id)
-        response.status(204).end()
     } catch (exception) {
         console.log(exception)
         response.status(400).send({ error: 'malformatted id' })
