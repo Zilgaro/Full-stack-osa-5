@@ -53,6 +53,14 @@ class App extends React.Component {
     }
   }
 
+  reFetchBlogs = () => {
+      return async () =>  {
+          const blogs = await
+          blogService.getAll()
+          this.setState({blogs: blogs})
+      }
+  }
+
   login = async (event) => {
       event.preventDefault()
 
@@ -175,7 +183,7 @@ class App extends React.Component {
           {blogForm()}
 
         {sortedBlogs.map(blog =>
-          <Blog key={blog._id} blog={blog}/>
+          <Blog key={blog._id} blog={blog} user={this.state.user} reFetch={this.reFetchBlogs()}/>
         )}
       </div>
     );

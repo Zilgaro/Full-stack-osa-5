@@ -7,7 +7,7 @@ class Blog extends React.Component {
         this.state = {
             visible: false,
             likes: this.props.blog.likes,
-            name: this.props.blog.user === undefined ? '' : this.props.blog.user.name
+            user: this.props.blog.user === undefined ? '' : this.props.blog.user
         }
     }
 
@@ -39,8 +39,7 @@ class Blog extends React.Component {
         }
 
         try {
-          const response = await blogService.update(this.props.blog._id, updateBlog)
-          console.log(response)
+          await blogService.update(this.props.blog._id, updateBlog)
           this.setState({likes: updateBlog.likes})
         } catch (exception) {
           console.log(exception)
@@ -48,11 +47,28 @@ class Blog extends React.Component {
 
     }
 
+    deleteBlog = async (event) => {
+      event.preventDefault()
+
+        const message = `Delete ${this.props.blog.title} by ${this.props.blog.author}?`
+        const result = window.confirm(message)
+
+        if (result) {
+          try {
+            await blogService.remove(this.props.blog._id)
+            await this.props.reFetch()
+          } catch (exception) {
+            console.log(exception)
+          }
+        }
+    }
+
 
 
     render () {
         const showWhenVisible = { display: this.state.visible ? '' : 'none' }
         const showWhenUserDefined = {display: this.props.blog.user === undefined ? 'none' : ''}
+        const showWhenUserMatches = {display: this.props.user.username === this.state.user.username || this.state.user === '' ? '' : 'none'}
         const blogStyle = {
             paddingTop: 10,
             paddingLeft: 2,
@@ -62,7 +78,7 @@ class Blog extends React.Component {
         }
 
         const listStyle = {
-          paddingLeft: 8
+            'listStyle': 'none'
         }
 
         return (
@@ -71,11 +87,13 @@ class Blog extends React.Component {
                   {this.props.blog.title} {this.props.blog.author}
               </div>
               <div style={showWhenVisible}>
-                 <div style={listStyle}>
-                     {this.props.blog.url} <br/>
-                     {this.state.likes} tykkäystä <button onClick={this.likeBlog}>tykkää</button> <br/>
-                   <p style={showWhenUserDefined}> blogin lisääjä oli {this.state.name} </p>
-                     <button>poista</button>
+                 <div >
+                     <ul style={listStyle}>
+                       <li>{this.props.blog.url} </li>
+                       <li>{this.state.likes} tykkäystä <button onClick={this.likeBlog}>tykkää</button> </li>
+                       <li style={showWhenUserDefined}> blogin lisääjä oli {this.state.user.name} </li>
+                       <button style={showWhenUserMatches} onClick={this.deleteBlog}>poista</button>
+                     </ul>
                  </div>
               </div>
             </div>
