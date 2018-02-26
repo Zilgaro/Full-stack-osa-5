@@ -8,7 +8,8 @@ import {createStore} from 'redux'
 const store = createStore(reducer)
 
 const Statistiikka = () => {
-    const palautteita = 0
+    const state = store.getState()
+    const palautteita = state.good + state.ok + state.bad
 
     if (palautteita === 0) {
         return (
@@ -19,6 +20,9 @@ const Statistiikka = () => {
         )
     }
 
+    const keskiarvo = (state.good - state.bad) / palautteita
+    const positiivisia = (state.good / palautteita) * 100
+
     return (
         <div>
             <h2>statistiikka</h2>
@@ -26,48 +30,49 @@ const Statistiikka = () => {
                 <tbody>
                 <tr>
                     <td>hyvä</td>
-                    <td></td>
+                    <td>{state.good}</td>
                 </tr>
                 <tr>
                     <td>neutraali</td>
-                    <td></td>
+                    <td>{state.ok}</td>
                 </tr>
                 <tr>
                     <td>huono</td>
-                    <td></td>
+                    <td>{state.bad}</td>
                 </tr>
                 <tr>
                     <td>keskiarvo</td>
-                    <td></td>
+                    <td>{keskiarvo}</td>
                 </tr>
                 <tr>
                     <td>positiivisia</td>
-                    <td></td>
+                    <td>{positiivisia}%</td>
                 </tr>
                 </tbody>
             </table>
 
-            <button>nollaa tilasto</button>
+            <button onClick={e => store.dispatch({type: 'ZERO'})}>nollaa tilasto</button>
         </div >
     )
 }
 
 class App extends React.Component {
-    klik = (nappi) => () => {
-
-    }
-
     render() {
         return (
             <div>
                 <h2>anna palautetta</h2>
-                <button onClick={this.klik('GOOD')}>hyvä</button>
-                <button onClick={this.klik('OK')}>neutraali</button>
-                <button onClick={this.klik('BAD')}>huono</button>
+                <button onClick={e => store.dispatch({type: 'GOOD'})}>hyvä</button>
+                <button onClick={e => store.dispatch({type: 'OK'})}>neutraali</button>
+                <button onClick={e => store.dispatch({type: 'BAD'})}>huono</button>
                 <Statistiikka />
             </div>
         )
     }
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const render = () => {
+    ReactDOM.render(<App />, document.getElementById('root'))
+}
+
+render()
+store.subscribe(render)
