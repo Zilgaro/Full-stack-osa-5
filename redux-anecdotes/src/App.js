@@ -4,10 +4,18 @@ import actionFor from './actionCreators'
 
 class App extends React.Component {
 
-    handleVote = (id) => (e) =>{
+    handleVote = (id) => () => {
         this.props.store.dispatch(
             actionFor.vote(id)
         )
+    }
+
+    addAnecdote = (event) => {
+        event.preventDefault()
+        this.props.store.dispatch(
+            actionFor.anecdoteCreation(event.target.anecdote.value)
+        )
+        event.target.anecdote.value = ''
     }
   render() {
     const anecdotes = this.props.store.getState().sort((a,b) => {return b.votes - a.votes})
@@ -17,7 +25,7 @@ class App extends React.Component {
         {anecdotes.map(anecdote=>
           <div key={anecdote.id}>
             <div>
-              {anecdote.content} 
+              {anecdote.content}
             </div>
             <div>
               has {anecdote.votes}
@@ -26,8 +34,8 @@ class App extends React.Component {
           </div>
         )}
         <h2>create new</h2>
-        <form>
-          <div><input /></div>
+        <form onSubmit={this.addAnecdote}>
+          <div><input name='anecdote'/></div>
           <button>create</button> 
         </form>
       </div>
